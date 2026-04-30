@@ -4,7 +4,7 @@
 An open-source bookmark manager built to handle large collections and advanced use cases, and optimized for ease-of-use and efficiency.
 
 - [Self-host for free](https://faved.dev/docs/getting-started/installation?utm_source=github&utm_medium=readme) with no external dependencies — all data is processed and stored locally. Or
-- [Start in the Cloud](https://faved.cloud/signup?utm_source=github&utm_medium=readme) with zero setuo, automatic backups and support — your data is secured with encryption.
+- [Start in the Cloud](https://faved.cloud/signup?utm_source=github&utm_medium=readme) with zero setup, automatic backups and support — your data is secured with encryption.
 
 <div align="center">
   
