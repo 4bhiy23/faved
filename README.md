@@ -1,10 +1,7 @@
   
 #  <img height="27px" src="https://github.com/user-attachments/assets/f96ecc14-bc29-4769-828e-c94cb3c87b9e" /> Faved
 
-An open-source bookmark manager built to handle large collections and advanced use cases, and optimized for ease-of-use and efficiency.
-
-- [Self-host for free](https://faved.dev/docs/getting-started/installation?utm_source=github&utm_medium=readme) with no external dependencies — all data is processed and stored locally. Or
-- [Start in the Cloud](https://faved.cloud/signup?utm_source=github&utm_medium=readme) with zero setup, automatic backups and support — your data is secured with encryption.
+A private open-source bookmark manager built to handle large collections and advanced use cases. Optimized for ease-of-use and efficiency.
 
 <div align="center">
   
@@ -63,6 +60,12 @@ An open-source bookmark manager built to handle large collections and advanced u
 ## Overview video
 
 https://github.com/user-attachments/assets/0ecbf26a-9ed8-49d9-a5ce-33d471c06fdf
+
+
+## Get started
+
+- [Self-host for free](https://faved.dev/docs/getting-started/installation?utm_source=github&utm_medium=readme) with no external dependencies. All data is stored locally.
+- [Start in the Cloud](https://faved.cloud/signup?utm_source=github&utm_medium=readme) with zero setup, automatic backups and support. Your data is secured with encryption.
 
 ## Documentation
 
