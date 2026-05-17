@@ -86,8 +86,12 @@ class Repository
 
 	public function userTableNotEmpty(): bool
 	{
-		$stmt = $this->pdo->query('SELECT 1 FROM users');
-		return (bool)$stmt->fetchColumn();
+		try {
+			$stmt = $this->pdo->query('SELECT 1 FROM users');
+			return $stmt && (bool)$stmt->fetchColumn();
+		} catch (Exception $e) {
+			return false;
+		}
 	}
 
 	public function createUser(string $username, string $password_hash)
@@ -351,7 +355,7 @@ class Repository
 	public function checkDatabaseExists()
 	{
 		try {
-			$stmt = $this->pdo->query("SELECT name FROM sqlite_master WHERE type='table' AND name='items'");
+			$stmt = $this->pdo->query("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'items'");
 			return $stmt->fetch() !== false;
 		} catch (Exception $e) {
 			return false;
@@ -368,37 +372,33 @@ class Repository
 		try {
 			// Create items table
 			$this->pdo->exec('CREATE TABLE IF NOT EXISTS items (
-				id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+				id SERIAL PRIMARY KEY,
 				title TEXT NOT NULL,
 				description TEXT NOT NULL,
 				url TEXT NOT NULL,
 				comments TEXT NOT NULL,
 				image TEXT NOT NULL,
-				created_at TEXT DEFAULT(NULL),
-				updated_at TEXT DEFAULT(NULL)
+				created_at TIMESTAMP DEFAULT NULL,
+				updated_at TIMESTAMP DEFAULT NULL
 			)');
 
 			// Create tags table
 			$this->pdo->exec('CREATE TABLE IF NOT EXISTS tags (
-				id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+				id SERIAL PRIMARY KEY,
 			   title TEXT NOT NULL,
 			   description TEXT NOT NULL,
 			   color TEXT NOT NULL,
-			   parent INTEGER NOT NULL DEFAULT(0),
-			   pinned INTEGER NOT NULL DEFAULT(0),
-			   created_at TEXT DEFAULT(NULL),
-			   updated_at TEXT DEFAULT(NULL)
+			   parent INTEGER NOT NULL DEFAULT 0,
+			   pinned INTEGER NOT NULL DEFAULT 0,
+			   created_at TIMESTAMP DEFAULT NULL,
+			   updated_at TIMESTAMP DEFAULT NULL
 			)');
 
 			// Create items_tags relationship table
 			$this->pdo->exec('CREATE TABLE IF NOT EXISTS items_tags (
-				item_id INTEGER NOT NULL,
-				tag_id INTEGER NOT NULL,
-				PRIMARY KEY(item_id, tag_id) 
-				FOREIGN KEY(item_id) REFERENCES items(id) 
-				ON DELETE CASCADE 
-				FOREIGN KEY(tag_id) REFERENCES tags(id) 
-				ON DELETE CASCADE
+				item_id INTEGER NOT NULL REFERENCES items(id) ON DELETE CASCADE,
+				tag_id INTEGER NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
+				PRIMARY KEY(item_id, tag_id)
 			)');
 
 			return true;
@@ -426,7 +426,7 @@ class Repository
 	public function checkUsersTableExists()
 	{
 		try {
-			$stmt = $this->pdo->query("SELECT name FROM sqlite_master WHERE type='table' AND name='users'");
+			$stmt = $this->pdo->query("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'users'");
 			return $stmt->fetch() !== false;
 		} catch (Exception $e) {
 			return false;
@@ -438,11 +438,11 @@ class Repository
 		try {
 			// Create users table
 			$this->pdo->exec('CREATE TABLE IF NOT EXISTS users (
-				id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+				id SERIAL PRIMARY KEY,
 				username TEXT NOT NULL UNIQUE,
 				password_hash TEXT NOT NULL,
-				created_at TEXT DEFAULT(NULL),
-				updated_at TEXT DEFAULT(NULL)
+				created_at TIMESTAMP DEFAULT NULL,
+				updated_at TIMESTAMP DEFAULT NULL
 			)');
 			return true;
 		} catch (Exception $e) {
@@ -452,15 +452,18 @@ class Repository
 
 	public function checkTagIndexExists()
 	{
-		$stmt = $this->pdo->query("SELECT 1 FROM sqlite_master WHERE type = 'index' AND name = 'idx_tags_title_parent' AND tbl_name = 'tags';");
-		return (bool)$stmt->fetchColumn();
-
+		try {
+			$stmt = $this->pdo->query("SELECT indexname FROM pg_indexes WHERE tablename = 'tags' AND indexname = 'idx_tags_title_parent';");
+			return $stmt->fetch() !== false;
+		} catch (Exception $e) {
+			return false;
+		}
 	}
 
 	public function createTagIndex()
 	{
 		try {
-			$this->pdo->exec('CREATE UNIQUE INDEX "idx_tags_title_parent" ON tags(title COLLATE NOCASE ASC, parent COLLATE BINARY ASC);');
+			$this->pdo->exec('CREATE UNIQUE INDEX idx_tags_title_parent ON tags (LOWER(title), parent);');
 			return true;
 		} catch (Exception $e) {
 			return false;

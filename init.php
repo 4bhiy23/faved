@@ -7,18 +7,7 @@ use Models\TagCreator;
 
 // Bind DB services
 ServiceContainer::bind(PDO::class, function () {
-	$db_path = Config::getDBPath();
-	if (!file_exists($db_path)) {
-		throw new DatabaseNotFound();
-	}
-
-	if (!is_writable($db_path)) {
-		throw new Exception("Database file not writable: {$db_path}");
-	}
-
-	$pdo = new PDO("sqlite:{$db_path}");
-	$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-	return $pdo;
+	return Config::getPDO();
 });
 
 ServiceContainer::bind(Models\Repository::class, function (): Models\Repository {

@@ -8,10 +8,34 @@ class Config
 
 	protected const string IMAGE_STORAGE_DIR_NAME = 'img';
 
-	public static function getDBPath(): string
+	public static function getPDO(): PDO
 	{
-		$db_name = $_SERVER['DB_NAME'] ?? self::DB_NAME_DEFAULT;
-		return sprintf('%s/%s.db', self::STORAGE_PATH, $db_name);
+		$envPath = ROOT_DIR . '/.env';
+		if (file_exists($envPath)) {
+			$env = parse_ini_file($envPath);
+			if (isset($env['DATABASE_URL'])) {
+				$_SERVER['DATABASE_URL'] = $env['DATABASE_URL'];
+			}
+		}
+
+		$databaseUrl = $_SERVER['DATABASE_URL'] ?? getenv('DATABASE_URL') ?? null;
+		
+		if (!$databaseUrl) {
+			throw new Exception("DATABASE_URL not set in .env");
+		}
+
+		$parsed = parse_url($databaseUrl);
+		$host = $parsed['host'] ?? 'localhost';
+		$port = $parsed['port'] ?? 5432;
+		$user = $parsed['user'] ?? '';
+		$pass = $parsed['pass'] ?? '';
+		$dbname = ltrim($parsed['path'] ?? '', '/');
+
+		$dsn = "pgsql:host={$host};port={$port};dbname={$dbname};sslmode=require";
+		
+		$pdo = new PDO($dsn, $user, $pass);
+		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		return $pdo;
 	}
 
 	public static function getImageStoragePath(): string

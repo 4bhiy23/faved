@@ -21,7 +21,7 @@ class SetupDatabaseController implements ControllerInterface
 			$repository = ServiceContainer::get(Repository::class);
 			$db_exists = $repository->checkDatabaseExists();
 
-		} catch (DatabaseNotFound $e) {
+		} catch (\Exception $e) {
 			$db_exists = false;
 		}
 
@@ -32,9 +32,7 @@ class SetupDatabaseController implements ControllerInterface
 			], 400);
 		}
 
-		$db_path = Config::getDBPath();
-		$pdo = new PDO("sqlite:{$db_path}");
-		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		$pdo = Config::getPDO();
 		$repository = new Repository($pdo);
 
 		// Create database tables

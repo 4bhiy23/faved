@@ -26,7 +26,7 @@ require_once ROOT_DIR . '/init.php';
 $routes = require ROOT_DIR . '/routes.php';
 
 // Run the application
-$path = $_SERVER['SCRIPT_URL'];
+$path = $_SERVER['SCRIPT_URL'] ?? parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $method = $_POST['force-method'] ?? $_SERVER["REQUEST_METHOD"];
 $app = new Application($routes, $middleware_classes, $error_redirects);
 $app->run($path, $method);
